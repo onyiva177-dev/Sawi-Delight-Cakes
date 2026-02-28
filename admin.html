@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Sawi's Delight Cakes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #D4AF37;
+            --primary-dark: #B8962E;
+            --dark: #2C2C2C;
+            --light: #FFF8F0;
+            --white: #FFFFFF;
+            --success: #4CAF50;
+            --danger: #f44336;
+            --shadow: rgba(0,0,0,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #FFF8F0 0%, #FFE4E1 100%); color: var(--dark); line-height: 1.6; min-height: 100vh; }
+        
+        /* Loading */
+        .page-loader { position: fixed; inset: 0; background: var(--light); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; gap: 16px; }
+        .page-loader.hidden { display: none; }
+        .spinner { width: 48px; height: 48px; border: 4px solid #FFE4E1; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .admin-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .admin-header { background: white; padding: 24px 32px; border-radius: 16px; box-shadow: 0 4px 16px var(--shadow); margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+        .admin-header h1 { font-size: 2rem; color: var(--dark); }
+        .header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-block; font-size: 14px; font-family: 'Poppins', sans-serif; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(212,175,55,0.4); }
+        .btn-secondary { background: white; color: var(--dark); border: 2px solid var(--primary); }
+        .btn-secondary:hover { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #45a049; transform: translateY(-1px); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #da190b; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+
+        .admin-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+        .tab-btn { padding: 12px 24px; background: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; color: var(--dark); font-family: 'Poppins', sans-serif; }
+        .tab-btn.active { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; }
+        .tab-btn:hover:not(.active) { background: var(--light); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .admin-card { background: white; padding: 32px; border-radius: 16px; box-shadow: 0 4px 16px var(--shadow); margin-bottom: 24px; }
+        .admin-card h2 { font-size: 1.5rem; margin-bottom: 24px; color: var(--dark); border-bottom: 2px solid var(--primary); padding-bottom: 12px; }
+
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--dark); }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 14px; transition: border-color 0.3s ease; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); }
+        .form-group textarea { min-height: 120px; resize: vertical; }
+        .form-group small { display: block; margin-top: 4px; color: #666; font-size: 12px; }
+
+        .cake-list { display: grid; gap: 24px; }
+        .cake-item { background: var(--light); padding: 24px; border-radius: 12px; border: 2px solid transparent; transition: all 0.3s ease; }
+        .cake-item:hover { border-color: var(--primary); }
+        .cake-item h3 { font-size: 1.3rem; margin-bottom: 12px; }
+
+        .list-item { background: var(--light); padding: 20px; border-radius: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+        .list-item-content { flex: 1; }
+        .list-item-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+        .alert { padding: 16px 20px; border-radius: 8px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; transition: opacity 0.3s ease; }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .alert-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        #alertContainer { position: fixed; top: 20px; right: 20px; z-index: 9998; max-width: 400px; }
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 32px; border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .modal-header h3 { font-size: 1.5rem; }
+        .close-modal { background: none; border: none; font-size: 2rem; cursor: pointer; color: #999; line-height: 1; }
+        .close-modal:hover { color: var(--dark); }
+
+        /* Image upload area */
+        .image-upload-area { border: 2px dashed #ccc; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease; margin-bottom: 12px; }
+        .image-upload-area:hover { border-color: var(--primary); background: var(--light); }
+        .image-preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+        .image-preview { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: #eee; }
+        .image-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .image-preview .remove-img { position: absolute; top: 4px; right: 4px; background: red; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+
+        .db-status { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; padding: 6px 12px; border-radius: 20px; }
+        .db-status.connected { background: #d4edda; color: #155724; }
+        .db-status.disconnected { background: #f8d7da; color: #721c24; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .status-dot.green { background: #28a745; }
+        .status-dot.red { background: #dc3545; }
+
+        @media (max-width: 768px) {
+            .admin-header { padding: 20px; }
+            .admin-header h1 { font-size: 1.5rem; }
+            .admin-card { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Page Loader -->
+    <div class="page-loader" id="pageLoader">
+        <div class="spinner"></div>
+        <p style="color: #666;">Loading admin panel...</p>
+    </div>
+
+    <div id="alertContainer"></div>
+
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <div>
+                <h1>🎂 Sawi's Delight Cakes — Admin</h1>
+                <p style="color: #666; margin-top: 4px; display: flex; align-items: center; gap: 12px;">
+                    Manage your website content
+                    <span class="db-status" id="dbStatus">
+                        <span class="status-dot red" id="statusDot"></span>
+                        <span id="statusText">Connecting...</span>
+                    </span>
+                </p>
+            </div>
+            <div class="header-actions">
+                <a href="index.html" class="btn btn-secondary" target="_blank">👁️ View Website</a>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="switchTab('business', this)">Business Info</button>
+            <button class="tab-btn" onclick="switchTab('cakes', this)">Cake Categories</button>
+            <button class="tab-btn" onclick="switchTab('features', this)">Features</button>
+            <button class="tab-btn" onclick="switchTab('ordering', this)">Ordering Steps</button>
+            <button class="tab-btn" onclick="switchTab('testimonials', this)">Testimonials</button>
+            <button class="tab-btn" onclick="switchTab('about', this)">About</button>
+            <button class="tab-btn" onclick="switchTab('images', this)">📸 Upload Images</button>
+        </div>
+
+        <!-- Business Info Tab -->
+        <div id="business-tab" class="tab-content active">
+            <div class="admin-card">
+                <h2>Business Information</h2>
+                <div class="form-group">
+                    <label>Business Name</label>
+                    <input type="text" id="businessName" placeholder="Sawi's Delight Cakes">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="businessPhone" placeholder="+254797486557">
+                    <small>Include country code e.g. +254...</small>
+                </div>
+                <div class="form-group">
+                    <label>Location Address</label>
+                    <textarea id="businessLocation" placeholder="Futro Area, Alego Usonga, Siaya County, Kenya"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Flavor Options</label>
+                    <input type="text" id="flavorOptions" placeholder="Vanilla • Chocolate • Marble • Lemon • Red Velvet • Black Forest">
+                    <small>Separate with bullets (•) or commas</small>
+                </div>
+                <button class="btn btn-success" onclick="saveBusinessInfo()">💾 Save Business Info</button>
+            </div>
+        </div>
+
+        <!-- Cakes Tab -->
+        <div id="cakes-tab" class="tab-content">
+            <div class="admin-card">
+                <h2>Cake Categories</h2>
+                <div class="alert alert-info"><span>ℹ️</span><span>Click Edit on a cake to update its details, pricing and images.</span></div>
+                <div id="cakeList" class="cake-list"></div>
+            </div>
+        </div>
+
+        <!-- Features Tab -->
+        <div id="features-tab" class="tab-content">
+            <div class="admin-card">
+                <h2>Customization Features</h2>
+                <button class="btn btn-primary" onclick="openAddFeatureModal()" style="margin-bottom: 20px;">+ Add Feature</button>
+                <div id="featureList"></div>
+            </div>
+        </div>
+
+        <!-- Ordering Tab -->
+        <div id="ordering-tab" class="tab-content">
+            <div class="admin-card">
+                <h2>Ordering Process Steps</h2>
+                <button class="btn btn-primary" onclick="openAddStepModal()" style="margin-bottom: 20px;">+ Add Step</button>
+                <div id="stepList"></div>
+            </div>
+        </div>
+
+        <!-- Testimonials Tab -->
+        <div id="testimonials-tab" class="tab-content">
+            <div class="admin-card">
+                <h2>Customer Testimonials</h2>
+                <button class="btn btn-primary" onclick="openAddTestimonialModal()" style="margin-bottom: 20px;">+ Add Testimonial</button>
+                <div id="testimonialList"></div>
+            </div>
+        </div>
+
+        <!-- About Tab -->
+        <div id="about-tab" class="tab-content">
+            <div class="admin-card">
+                <h2>About Section</h2>
+                <div id="aboutFields"></div>
+            </div>
+        </div>
+
+        <!-- Image Upload Tab -->
+        <div id="images-tab" class="tab-content">
+            <div class="admin-card">
+                <h2>📸 Upload Cake Images</h2>
+                <div class="alert alert-info"><span>ℹ️</span><span>Upload images to Supabase Storage. After uploading, copy the URL and paste it into the cake's image field.</span></div>
+                <div class="form-group">
+                    <label>Select Images to Upload</label>
+                    <input type="file" id="imageFileInput" accept="image/*" multiple onchange="previewUploadImages(event)">
+                    <small>Supported: JPG, PNG, WebP. Max 5MB per image.</small>
+                </div>
+                <div id="uploadPreview" style="margin: 16px 0;"></div>
+                <button class="btn btn-primary" onclick="uploadImages()" id="uploadBtn" style="display:none;">⬆️ Upload Images</button>
+                <div id="uploadedLinks" style="margin-top: 24px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Cake Modal -->
+    <div id="cakeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Cake Category</h3>
+                <button class="close-modal" onclick="closeCakeModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="cakeTitle">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="cakeDescription"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Starting Price (optional)</label>
+                <input type="text" id="cakePrice" placeholder="Starting from KSh 2,500">
+                <small>Leave empty if using detail pricing below</small>
+            </div>
+            <div class="form-group">
+                <label>Images (up to 3) — paste URLs from Upload tab</label>
+                <div id="cakeImageInputs"></div>
+                <button class="btn btn-secondary" onclick="addImageInput()" style="margin-top: 8px; padding: 8px 16px; font-size: 12px;">+ Add Image</button>
+            </div>
+            <div class="form-group">
+                <label>Details / Pricing</label>
+                <div id="cakeDetailInputs"></div>
+                <button class="btn btn-secondary" onclick="addDetailInput()" style="margin-top: 8px; padding: 8px 16px; font-size: 12px;">+ Add Detail</button>
+            </div>
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button class="btn btn-success" onclick="saveCake()" id="saveCakeBtn">Save Cake</button>
+                <button class="btn btn-secondary" onclick="closeCakeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generic Edit Modal -->
+    <div id="genericModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="genericModalTitle">Edit</h3>
+                <button class="close-modal" onclick="closeGenericModal()">&times;</button>
+            </div>
+            <div id="genericModalBody"></div>
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button class="btn btn-success" id="genericSaveBtn">Save</button>
+                <button class="btn btn-secondary" onclick="closeGenericModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
