@@ -342,13 +342,44 @@
 
         /* ══════════════ RESPONSIVE ══════════════ */
         @media (max-width: 768px) {
-            .hero { height: 95vh; min-height: 580px; }
-            .hero-content { padding: 16px; }
-            section { padding: 56px 16px; }
+            .hero { height: auto; min-height: 100vh; padding: 20px 0; }
+            .hero-content { padding: 12px 16px; width: 96%; }
+            .hero-title { font-size: clamp(2.2rem, 11vw, 3.5rem); }
+            .hero-eyebrow { padding: 6px 16px; margin-bottom: 16px; }
+            .hero-eyebrow span { font-size: 9px; letter-spacing: 2px; }
+            .hero-divider { margin: 14px auto; }
+            .hero-subtitle { font-size: 0.95rem; margin-bottom: 20px; }
+            .hero-badges {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                margin-bottom: 24px;
+            }
+            .hero-badge { font-size: 11px; padding: 7px 10px; text-align: center; }
+            .hero-buttons {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+            }
+            .hero-buttons .btn { width: 100%; text-align: center; padding: 15px 20px; }
+            .scroll-cue { bottom: 16px; }
+            section { padding: 48px 16px; }
             .cake-categories { grid-template-columns: 1fr; }
-            .customization, .testimonials-section, .about, .final-cta { padding: 48px 24px; }
+            .features-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+            .feature-item { padding: 20px 14px; }
+            .feature-icon { font-size: 2rem; margin-bottom: 10px; }
+            .feature-title { font-size: 0.95rem; }
+            .feature-desc { font-size: 0.8rem; }
+            .customization, .testimonials-section, .about, .final-cta { padding: 48px 20px; }
+            .process-steps { grid-template-columns: 1fr 1fr; gap: 20px; }
+            .testimonial-grid { grid-template-columns: 1fr; }
+            .location-content { padding: 24px; gap: 24px; }
+            .map-container { height: 280px; }
+            .final-buttons { flex-direction: column; align-items: stretch; }
+            .final-buttons .btn { width: 100%; text-align: center; }
             .floating-whatsapp a span:last-child { display: none; }
-            .floating-whatsapp a { padding: 14px 18px; }
+            .floating-whatsapp a { padding: 14px 18px; border-radius: 50%; }
+            .hero-top-tag { display: none; }
         }
     </style>
 </head>
